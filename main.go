@@ -2,9 +2,9 @@ package main
 
 import (
 	"fmt"
+	"github.com/alexsusanu/lenslocked/views"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
-	"html/template"
 	"log"
 	"net/http"
 	"path/filepath"
@@ -19,19 +19,13 @@ func homeHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func executeTemplate(w http.ResponseWriter, filepath string) {
-	w.Header().Set("Content-Type", "text/html; charset=utf-8") // Set the content type to text/html
-	tpl, err := template.ParseFiles(filepath)
+	tpl, err := views.Parse(filepath)
 	if err != nil {
 		log.Printf("Error parsing template: %v", err)
 		http.Error(w, "Something went wrong", http.StatusInternalServerError)
 		return
 	}
-	err = tpl.Execute(w, nil)
-	if err != nil {
-		log.Printf("Error executing template: %v", err)
-		http.Error(w, "Something went wrong executing", http.StatusInternalServerError)
-		return
-	}
+	tpl.Execute(w, nil)
 }
 
 func contactHandler(w http.ResponseWriter, r *http.Request) {
