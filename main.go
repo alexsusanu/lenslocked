@@ -2,25 +2,40 @@ package main
 
 import (
 	"fmt"
-	"github.com/go-chi/chi/v5/middleware"
-	"net/http"
-
 	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
+	"html/template"
+	"log"
+	"net/http"
+	"path/filepath"
 )
 
 func faqHandler(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "text/html; charset=utf-8") // Set the content type to text/html
-	fmt.Fprint(w, "<h1>FAQ</h1>")
+	executeTemplate(w, filepath.Join("templates", "faq.gohtml"))
 }
 
 func homeHandler(w http.ResponseWriter, r *http.Request) {
+	executeTemplate(w, filepath.Join("templates", "home.gohtml"))
+}
+
+func executeTemplate(w http.ResponseWriter, filepath string) {
 	w.Header().Set("Content-Type", "text/html; charset=utf-8") // Set the content type to text/html
-	fmt.Fprint(w, "<h1>Welcome to Lenslocked!</h1>")
+	tpl, err := template.ParseFiles(filepath)
+	if err != nil {
+		log.Printf("Error parsing template: %v", err)
+		http.Error(w, "Something went wrong", http.StatusInternalServerError)
+		return
+	}
+	err = tpl.Execute(w, nil)
+	if err != nil {
+		log.Printf("Error executing template: %v", err)
+		http.Error(w, "Something went wrong executing", http.StatusInternalServerError)
+		return
+	}
 }
 
 func contactHandler(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "text/html; charset=utf-8") // Set the content type to text/html
-	fmt.Fprint(w, "To get in touch, please send an email to <a href=\"mailto:example@example.com\">example@example.com</a>.")
+	executeTemplate(w, filepath.Join("templates", "contact.gohtml"))
 }
 
 func requestHandler(w http.ResponseWriter, r *http.Request) {
