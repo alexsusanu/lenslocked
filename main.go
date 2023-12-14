@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/alexsusanu/lenslocked/controllers"
 	"github.com/alexsusanu/lenslocked/views"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -41,8 +42,13 @@ func main() {
 	r := chi.NewRouter()
 	logGroup := r.Group(nil)
 	logGroup.Use(middleware.Logger)
-	//r.Use(middleware.Logger)
-	r.Get("/", homeHandler)
+
+	homeTpl, err := views.Parse(filepath.Join("templates", "home.gohtml"))
+	if err != nil {
+		panic(err)
+	}
+	r.Get("/", controllers.StaticHandler(homeTpl))
+
 	r.Get("/contact", contactHandler)
 	r.Get("/faq", faqHandler)
 	logGroup.Get("/galleries/{id}", requestHandler)
